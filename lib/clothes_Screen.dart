@@ -154,7 +154,7 @@ class _ClothesSectionPageState extends State<ClothesSectionPage> {
                 const SizedBox(height: 4),
                 // Product Price
                 Text(
-                  '\$${item['price']}',
+                  '₹${item['price']}',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -179,7 +179,7 @@ class _ClothesSectionPageState extends State<ClothesSectionPage> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'home_Screen.dart';
 import 'signup_Screen.dart';
-import 'forgot.dart'; // Import Forgot Password Screen
-import 'admin_panel_screen.dart'; // Import Admin Panel Screen
+import 'forgot.dart';
+import 'admin_panel_screen.dart'; // Make sure this file exists and is correct
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -19,8 +20,12 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
-  final String adminEmail = "redcollar@gmail.com"; // Admin email
-  final String adminPassword = "redcollar@123"; // Admin password
+  // Admin Credentials
+  final String adminEmail = "redcollar@gmail.com";
+  final String adminPassword = "redcollar@123";
+
+  // GoogleSignIn instance
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   @override
   void dispose() {
@@ -42,9 +47,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       // Sign in with Firebase Authentication
@@ -59,11 +62,8 @@ class _SignInScreenState extends State<SignInScreen> {
         // Navigate to Admin Panel
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => const AdminPanelScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const AdminPanelScreen()),
         );
-
         Fluttertoast.showToast(
           msg: "Admin Login successful!",
           toastLength: Toast.LENGTH_SHORT,
@@ -76,10 +76,8 @@ class _SignInScreenState extends State<SignInScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const HomeScreen(isAdmin: false),
-          ),
+              builder: (context) => const HomeScreen(isAdmin: false)),
         );
-
         Fluttertoast.showToast(
           msg: "Sign-In successful!",
           toastLength: Toast.LENGTH_SHORT,
@@ -97,9 +95,63 @@ class _SignInScreenState extends State<SignInScreen> {
         textColor: Colors.white,
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        // User canceled the sign-in
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      Fluttertoast.showToast(
+        msg: "Google sign-in successful!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+
+      // Check if admin logged in with Google
+      if (FirebaseAuth.instance.currentUser?.email == adminEmail) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminPanelScreen()),
+        );
+      } else {
+        // Navigate to HomeScreen for regular users
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const HomeScreen(isAdmin: false)),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(
+        msg: e.message ?? "Google sign-in failed.",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -117,20 +169,31 @@ class _SignInScreenState extends State<SignInScreen> {
                 Container(
                   height: 200,
                   decoration: const BoxDecoration(
-                    color: Colors.black,
+                    color: Colors.white,
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(40),
                       bottomRight: Radius.circular(40),
                     ),
                   ),
                   alignment: Alignment.center,
-                  child: const Text(
-                    'Sign In',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 60),
+                      Image.asset(
+                        'assets/RedCollar logo.png', // Replace with your logo's asset path
+                        height: 60,
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Sign In',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -154,6 +217,16 @@ class _SignInScreenState extends State<SignInScreen> {
                               filled: true,
                               fillColor: Colors.grey[200],
                               border: InputBorder.none,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: const BorderSide(
+                                    color: Colors.red, width: 2),
+                              ),
                               contentPadding:
                                   const EdgeInsets.symmetric(vertical: 15),
                             ),
@@ -181,6 +254,16 @@ class _SignInScreenState extends State<SignInScreen> {
                               filled: true,
                               fillColor: Colors.grey[200],
                               border: InputBorder.none,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: const BorderSide(
+                                    color: Colors.red, width: 2),
+                              ),
                               contentPadding:
                                   const EdgeInsets.symmetric(vertical: 15),
                             ),
@@ -195,9 +278,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ForgotPasswordScreen(),
-                                  ),
+                                      builder: (context) =>
+                                          const ForgotPasswordScreen()),
                                 );
                               },
                               child: const Text(
@@ -231,6 +313,35 @@ class _SignInScreenState extends State<SignInScreen> {
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ),
+                          const SizedBox(height: 20),
+
+                          // Sign in with Google
+
+                          SizedBox(
+                            width: double.infinity,
+                            height: 60,
+                            child: OutlinedButton.icon(
+                              icon: Image.asset(
+                                'assets/G l.png',
+                                height: 24,
+                                width: 24,
+                              ),
+                              label: const Text(
+                                'Sign in with Google',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              onPressed: _signInWithGoogle,
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Colors.black),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 20),
 
                           // Redirect to Sign-Up

@@ -95,16 +95,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       body: Column(
         children: [
           Expanded(
-            child: Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  imageVariant,
-                  height: 250,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.image_not_supported, size: 100),
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              child: Image.asset(
+                imageVariant,
+                width: double.infinity,
+                height: double.infinity, // Take full height
+                fit: BoxFit.cover, // Ensures the image covers the area
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.image_not_supported,
+                  size: 100,
                 ),
               ),
             ),
@@ -139,7 +142,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "\$${product['price']}",
+                      "₹${product['price']}",
                       style: const TextStyle(
                         fontSize: 18,
                         color: Colors.green,
@@ -170,10 +173,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         margin: const EdgeInsets.symmetric(horizontal: 8),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.orange : Colors.grey[200],
+                          color: isSelected ? Colors.red : Colors.grey[200],
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSelected ? Colors.orange : Colors.grey,
+                            color: isSelected ? Colors.red : Colors.grey,
                           ),
                         ),
                         child: Text(
@@ -203,11 +206,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color:
-                              isSelected ? Colors.orange : Colors.grey.shade200,
+                          color: isSelected ? Colors.red : Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected ? Colors.orange : Colors.grey,
+                            color: isSelected ? Colors.red : Colors.grey,
                           ),
                         ),
                         child: Text(
@@ -231,7 +233,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "\$${product['price']}",
+                      "₹${product['price']}",
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -241,27 +243,42 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      addToCart(product);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CartScreen(),
+                Align(
+                  alignment: Alignment.centerRight, // Align button to the left
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16.0), // Left padding for spacing
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        addToCart(product);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CartScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        elevation: 4, // Adds a shadow for depth
                       ),
-                    ),
-                    child: const Text(
-                      'Add to Cart',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      icon: const Icon(
+                        Icons.shopping_cart,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        'Add to Cart',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),

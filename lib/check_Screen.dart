@@ -79,7 +79,7 @@ class CheckoutScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '\$${item['price'].toStringAsFixed(2)}',
+                                '\₹${item['price'].toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -109,7 +109,7 @@ class CheckoutScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 18),
                 ),
                 Text(
-                  '\$${totalPrice.toStringAsFixed(2)}',
+                  '\ ₹:${totalPrice.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -121,21 +121,38 @@ class CheckoutScreen extends StatelessWidget {
             const SizedBox(height: 16),
             // Center the button at the bottom of the screen
             Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle the checkout action
-                  // You can add logic for processing the payment or order here
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              child: Align(
+                alignment:
+                    Alignment.centerRight, // Aligns button to the center-right
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // Handle the checkout action
+                    // Add your payment or order logic here
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Button background color
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 24,
+                    ), // Custom padding
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(12), // Rounded corners
+                    ),
+                    elevation: 4, // Shadow effect for depth
                   ),
-                ),
-                child: const Text(
-                  'Proceed to Payment',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  icon: const Icon(
+                    Icons.payment, // Payment icon
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    'Proceed to Payment',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),

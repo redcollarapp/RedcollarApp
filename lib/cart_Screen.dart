@@ -106,7 +106,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '\$${item['price'].toStringAsFixed(2)}',
+                                    '\ ₹${item['price'].toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ class _CartScreenState extends State<CartScreen> {
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.remove_circle,
-                                          color: Colors.orange),
+                                          color: Colors.red),
                                       onPressed:
                                           (item['quantity'] as int? ?? 1) > 1
                                               ? () => _updateQuantity(
@@ -136,7 +136,7 @@ class _CartScreenState extends State<CartScreen> {
                                     Text('${item['quantity'] ?? 1}'),
                                     IconButton(
                                       icon: const Icon(Icons.add_circle,
-                                          color: Colors.orange),
+                                          color: Colors.red),
                                       onPressed: () => _updateQuantity(
                                         index,
                                         (item['quantity'] as int? ?? 1) + 1,
@@ -183,30 +183,47 @@ class _CartScreenState extends State<CartScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: cartItems.isEmpty
-                      ? null
-                      : () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CheckoutScreen(
-                                totalPrice: totalPrice,
-                                items: cartItems,
+                Align(
+                  alignment: Alignment
+                      .centerRight, // Aligns button to the center-right
+                  child: ElevatedButton.icon(
+                    onPressed: cartItems.isEmpty
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CheckoutScreen(
+                                  totalPrice: totalPrice,
+                                  items: cartItems,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                            );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // Button color
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 24,
+                      ), // Adds vertical and horizontal spacing
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(12), // Rounded edges
+                      ),
+                      elevation: 4, // Adds shadow for depth
                     ),
-                  ),
-                  child: const Text(
-                    'Checkout Now',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    icon: const Icon(
+                      Icons.shopping_bag, // Icon for "Checkout Now"
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Checkout Now',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -25,7 +25,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   http: ^1.2.2
-  carousel_slider: ^4.2.1
+  carousel_slider: ^5.0.0
   provider: ^6.0.3
   fluttertoast: ^8.0.9
   flutter_signin_button: ^2.0.0
@@ -40,20 +40,23 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "lib/1024.png"
+  image_path: "assets/Rc.png"
 
 flutter:
   uses-material-design: true
 
   # Correct indentation for the assets section
   assets:
-    - assets/clothes/
-    - assets/hoodies/
-    - assets/jeans/
-    - assets/shoes/
+    - assets/compressedimages/cclothes/
+    - assets/compressedimages/choodies/
+    - assets/compressedimages/cjeans/
+    - assets/compressedimages/cshoes/
     - assets/t-shop.jpeg
     - assets/hoodie-shop.jpeg
     - assets/jean-shop.jpeg
     - assets/shoe-shop.jpeg 
+    - assets/RedCollar logo.png
+    - assets/G l.png
+    - assets/Rc.png
       
 
