@@ -18,6 +18,7 @@ plugins {
 }
 
 android {
+     compileSdk 33 // Ensure this is compatible with your dependencies
     namespace = "com.example.flutter_application_1"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -53,6 +54,7 @@ flutter {
 // Application dependencies
 dependencies {
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
+   
 }
 android {
   ndkVersion "25.1.8937393"
@@ -60,6 +62,7 @@ android {
 compileOptions {
   sourceCompatibility JavaVersion.VERSION_17
   targetCompatibility JavaVersion.VERSION_17
+   
 }
 kotlinOptions {
   jvmTarget = 17

@@ -1,160 +1,308 @@
 import 'package:flutter/material.dart';
 
-class CheckoutScreen extends StatelessWidget {
-  final double totalPrice;
-  final List<Map<String, dynamic>> items;
-
+class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen(
-      {super.key, required this.totalPrice, required this.items});
+      {Key? key,
+      required List<Map<String, dynamic>> cart,
+      required double discount,
+      required double subtotal,
+      required double total})
+      : super(key: key);
+
+  @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  final _formKey = GlobalKey<FormState>();
+  int _currentStep = 0;
+
+  // User data
+  final Map<String, String> _addressData = {
+    'fullName': '',
+    'email': '',
+    'phone': '',
+    'address': '',
+    'city': '',
+    'country': ''
+  };
+
+  final Map<String, String> _paymentData = {
+    'cardHolderName': '',
+    'cardNumber': '',
+    'expiryDate': '',
+    'cvv': ''
+  };
+
+  bool _saveShipping = false;
+  bool _saveCard = false;
+
+  // Simulate payment processing
+  void _processPayment() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    await Future.delayed(const Duration(seconds: 2)); // Simulate a delay
+
+    Navigator.pop(context); // Close the loading dialog
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PaymentCompleteScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout', style: TextStyle(color: Colors.black)),
+        title: const Text(
+          'Checkout',
+          style: TextStyle(color: Colors.brown),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.brown),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Items in your cart',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+      body: Stepper(
+        type: StepperType.horizontal,
+        currentStep: _currentStep,
+        onStepContinue: () {
+          if (_currentStep == 0 && _formKey.currentState!.validate()) {
+            _formKey.currentState!.save();
+            setState(() {
+              _currentStep++;
+            });
+          } else if (_currentStep == 1) {
+            _processPayment();
+          }
+        },
+        onStepCancel: () {
+          if (_currentStep > 0) {
+            setState(() {
+              _currentStep--;
+            });
+          } else {
+            Navigator.pop(context);
+          }
+        },
+        steps: [
+          // Step 1: Address
+          Step(
+            title: const Text('Address'),
+            isActive: _currentStep >= 0,
+            state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+            content: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInputField(
+                    label: 'Full Name',
+                    hint: 'Enter your full name',
+                    onSave: (value) => _addressData['fullName'] = value!,
+                    validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                  ),
+                  _buildInputField(
+                    label: 'Email',
+                    hint: 'Enter your email',
+                    keyboardType: TextInputType.emailAddress,
+                    onSave: (value) => _addressData['email'] = value!,
+                    validator: (value) => value == null || !value.contains('@')
+                        ? 'Enter a valid email'
+                        : null,
+                  ),
+                  _buildInputField(
+                    label: 'Phone',
+                    hint: 'Enter your phone number',
+                    keyboardType: TextInputType.phone,
+                    onSave: (value) => _addressData['phone'] = value!,
+                    validator: (value) => value == null || value.length < 10
+                        ? 'Enter a valid phone number'
+                        : null,
+                  ),
+                  _buildInputField(
+                    label: 'Address',
+                    hint: 'Type your home address',
+                    onSave: (value) => _addressData['address'] = value!,
+                    validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInputField(
+                          label: 'City',
+                          hint: 'Enter here',
+                          onSave: (value) => _addressData['city'] = value!,
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Required'
+                              : null,
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.asset(
-                            item['image'], // Use local image from cart
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildInputField(
+                          label: 'Country',
+                          hint: 'Your country',
+                          onSave: (value) => _addressData['country'] = value!,
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Required'
+                              : null,
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item['name'],
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(Icons.star,
-                                      color: Colors.amber, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text('${item['rating']} Star'),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '\₹${item['price'].toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          children: [
-                            Text('x${item['quantity']}'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                      ),
+                    ],
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Save shipping address'),
+                    value: _saveShipping,
+                    onChanged: (value) {
+                      setState(() {
+                        _saveShipping = value!;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
-            Divider(color: Colors.grey[300]),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+
+          // Step 2: Payment
+          Step(
+            title: const Text('Complete'),
+            isActive: _currentStep >= 1,
+            state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Total:',
-                  style: TextStyle(fontSize: 18),
+                _buildInputField(
+                  label: 'Card Holder Name',
+                  hint: 'Your card holder name',
+                  onSave: (value) => _paymentData['cardHolderName'] = value!,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Required' : null,
                 ),
-                Text(
-                  '\ ₹:${totalPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
+                _buildInputField(
+                  label: 'Card Number',
+                  hint: 'Your card number',
+                  keyboardType: TextInputType.number,
+                  onSave: (value) => _paymentData['cardNumber'] = value!,
+                  validator: (value) => value == null || value.length < 16
+                      ? 'Enter a valid card number'
+                      : null,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildInputField(
+                        label: 'Month/Year',
+                        hint: 'mm/yy',
+                        keyboardType: TextInputType.datetime,
+                        onSave: (value) => _paymentData['expiryDate'] = value!,
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Required' : null,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildInputField(
+                        label: 'CVV',
+                        hint: '***',
+                        keyboardType: TextInputType.number,
+                        onSave: (value) => _paymentData['cvv'] = value!,
+                        validator: (value) => value == null || value.length != 3
+                            ? 'Invalid CVV'
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+                CheckboxListTile(
+                  title: const Text('Save this card'),
+                  value: _saveCard,
+                  onChanged: (value) {
+                    setState(() {
+                      _saveCard = value!;
+                    });
+                  },
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Input field builder
+  Widget _buildInputField({
+    required String label,
+    required String hint,
+    TextInputType keyboardType = TextInputType.text,
+    required void Function(String?) onSave,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        keyboardType: keyboardType,
+        onSaved: onSave,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          filled: true,
+          fillColor: Colors.brown.shade50,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PaymentCompleteScreen extends StatelessWidget {
+  const PaymentCompleteScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.check_circle_outline,
+              size: 100,
+              color: Colors.green,
+            ),
             const SizedBox(height: 16),
-            // Center the button at the bottom of the screen
-            Center(
-              child: Align(
-                alignment:
-                    Alignment.centerRight, // Aligns button to the center-right
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // Handle the checkout action
-                    // Add your payment or order logic here
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Button background color
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 24,
-                    ), // Custom padding
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(12), // Rounded corners
-                    ),
-                    elevation: 4, // Shadow effect for depth
-                  ),
-                  icon: const Icon(
-                    Icons.payment, // Payment icon
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    'Proceed to Payment',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+            const Text(
+              'Successfully completed!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.popUntil(context, (route) => route.isFirst);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.brown,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
+              child: const Text('OK'),
             ),
           ],
         ),

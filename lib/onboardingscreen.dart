@@ -1,106 +1,244 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'dart:io'; // Required to close the app
-import 'signup_screen.dart'; // Replace with your actual signup screen import
+import 'signup_screen.dart'; // Replace with your actual sign-up screen
+import 'signin_screen.dart'; // Replace with your actual sign-in screen
 
-class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
-
-  @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+void main() {
+  runApp(const MyApp());
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  @override
-  void initState() {
-    super.initState();
-
-    // Navigate to the Signup Screen after a brief delay (you can adjust the delay as needed)
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SignUpScreen()),
-      );
-    });
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const OnboardingScreen(),
+    );
+  }
+}
+
+class OnboardingScreen extends StatelessWidget {
+  const OnboardingScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // Centered Logo Section
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image:
+                AssetImage('assets/client.jpg'), // Replace with your image path
+            fit: BoxFit.fill,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Spacer for dynamic alignment
+              const Spacer(flex: 56),
+              Image.asset(
+                "assets/Rc.png",
+                height: 100.0, // Set height without 'px'
+                width: 100.0, // Set width without 'px'
+              ),
+
+              // App Title
+              const Text(
+                'Red Collar',
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              // Spacer
+              const Spacer(),
+
+              // Sign-up Buttons
+              Column(
                 children: [
-                  // Logo Section
-                  Image.asset('assets/RedCollar logo.png',
-                      height: 150), // Replace with your logo image
+                  RoundedButton(
+                    icon: Image.asset(
+                      "assets/G l.png",
+                      height: 24.0,
+                      width: 24.0,
+                    ),
+                    text: 'Sign up with Google',
+                    onPressed: () {
+                      debugPrint('Sign up with Google');
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  RoundedButton(
+                    icon: Image.asset(
+                      "assets/apple.png",
+                      height: 24.0,
+                      width: 24.0,
+                    ),
+                    text: 'Sign up with Apple',
+                    onPressed: () {
+                      debugPrint('Sign up with Apple');
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  RoundedButton(
+                    icon: Image.asset(
+                      "assets/facebook.png",
+                      height: 30.0,
+                      width: 30.0,
+                    ),
+                    text: 'Sign up with Facebook',
+                    onPressed: () {
+                      debugPrint('Sign up with Facebook');
+                    },
+                  ),
                 ],
               ),
-            ),
-          ),
 
-          // Footer Section
-          Padding(
-            padding: const EdgeInsets.only(bottom: 32.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align to start
-              children: [
-                const SizedBox(height: 16), // Spacing between button and footer
+              // Spacer between buttons and links
+              const Spacer(),
 
-                // Footer Row with CULTURES CLOTHES / 2025 / MELBOURNE
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "RedCollar",
+              // Sign-in/Sign-up Links
+              Column(
+                children: [
+                  const Text(
+                    'Already have an account?',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Sign in',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
-                    Text(
-                      "  /  ",
+                  ),
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateAccountPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Sign up',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
-                    Text(
-                      "2025",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      "  /  ",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      "Tamilnadu",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
+                  ),
+                ],
+              ),
+
+              // Spacer
+              const Spacer(flex: 2),
+
+              // Privacy Notice
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.1,
                 ),
-              ],
-            ),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    text: 'We collect data to improve your experience. ',
+                    style: const TextStyle(color: Colors.white),
+                    children: [
+                      TextSpan(
+                        text: 'Learn More',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            debugPrint('Learn More tapped');
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.02),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+// Rounded Button Widget
+class RoundedButton extends StatelessWidget {
+  final Widget icon;
+  final String text;
+  final VoidCallback onPressed;
+
+  const RoundedButton({
+    Key? key,
+    required this.icon,
+    required this.text,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return SizedBox(
+      width: screenWidth * 0.8, // Dynamic width based on screen size
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white, // White background
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30), // Rounded corners
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon, // Icon on the left
+            const SizedBox(width: 8), // Space between icon and text
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

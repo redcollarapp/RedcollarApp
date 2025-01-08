@@ -82,7 +82,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => HomeScreen(isAdmin: false),
+        builder: (context) => HomeScreen(
+          isAdmin: false,
+          username: '',
+        ),
       ),
     );
   }

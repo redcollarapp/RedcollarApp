@@ -1,144 +1,139 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
-class HoodieUploaderScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> hoodies = [
-    {
-      "name": "Classic Hoodie",
-      "price": 45.99,
-      "brand": "ComfortWear",
-      "color": "Black",
-      "material": "Cotton Blend",
-      "rating": 4.8,
-      "sizes": {"S": true, "M": true, "L": true, "XL": true},
-      "stock": 20,
-      "image": "https://via.placeholder.com/150?text=Classic+Hoodie"
-    },
-    {
-      "name": "Zip-Up Hoodie",
-      "price": 55.99,
-      "brand": "UrbanStyle",
-      "color": "Gray",
-      "material": "Polyester",
-      "rating": 4.7,
-      "sizes": {"S": true, "M": false, "L": true, "XL": true},
-      "stock": 15,
-      "image": "https://via.placeholder.com/150?text=Zip-Up+Hoodie"
-    },
-    {
-      "name": "Oversized Hoodie",
-      "price": 60.99,
-      "brand": "TrendyFit",
-      "color": "White",
-      "material": "Fleece",
-      "rating": 4.9,
-      "sizes": {"S": false, "M": true, "L": true, "XL": true},
-      "stock": 10,
-      "image": "https://via.placeholder.com/150?text=Oversized+Hoodie"
-    },
-    {
-      "name": "Pullover Hoodie",
-      "price": 40.99,
-      "brand": "CasualFit",
-      "color": "Navy Blue",
-      "material": "Cotton",
-      "rating": 4.5,
-      "sizes": {"S": true, "M": true, "L": false, "XL": false},
-      "stock": 18,
-      "image": "https://via.placeholder.com/150?text=Pullover+Hoodie"
-    },
-    {
-      "name": "Graphic Hoodie",
-      "price": 50.99,
-      "brand": "ArtWear",
-      "color": "Black/Red",
-      "material": "Polyester Blend",
-      "rating": 4.6,
-      "sizes": {"S": true, "M": true, "L": true, "XL": true},
-      "stock": 12,
-      "image": "https://via.placeholder.com/150?text=Graphic+Hoodie"
-    },
-    {
-      "name": "Tech Hoodie",
-      "price": 65.99,
-      "brand": "SportStyle",
-      "color": "Olive Green",
-      "material": "Nylon",
-      "rating": 4.8,
-      "sizes": {"S": true, "M": true, "L": true, "XL": true},
-      "stock": 30,
-      "image": "https://via.placeholder.com/150?text=Tech+Hoodie"
-    },
-    {
-      "name": "Fur-Lined Hoodie",
-      "price": 75.99,
-      "brand": "WinterWear",
-      "color": "Brown",
-      "material": "Cotton/Fur",
-      "rating": 5.0,
-      "sizes": {"S": true, "M": true, "L": true, "XL": true},
-      "stock": 8,
-      "image": "https://via.placeholder.com/150?text=Fur-Lined+Hoodie"
-    },
-    {
-      "name": "Striped Hoodie",
-      "price": 48.99,
-      "brand": "ClassicStyle",
-      "color": "Red/White",
-      "material": "Cotton Blend",
-      "rating": 4.4,
-      "sizes": {"S": true, "M": true, "L": true, "XL": true},
-      "stock": 20,
-      "image": "https://via.placeholder.com/150?text=Striped+Hoodie"
-    },
-    {
-      "name": "Lightweight Hoodie",
-      "price": 38.99,
-      "brand": "ActiveWear",
-      "color": "Sky Blue",
-      "material": "Polyester",
-      "rating": 4.3,
-      "sizes": {"S": true, "M": true, "L": false, "XL": true},
-      "stock": 25,
-      "image": "https://via.placeholder.com/150?text=Lightweight+Hoodie"
-    },
-    {
-      "name": "Camo Hoodie",
-      "price": 58.99,
-      "brand": "AdventureFit",
-      "color": "Camo Green",
-      "material": "Cotton Blend",
-      "rating": 4.7,
-      "sizes": {"S": false, "M": true, "L": true, "XL": true},
-      "stock": 14,
-      "image": "https://via.placeholder.com/150?text=Camo+Hoodie"
-    },
-  ];
+class UpdateClothesDataScreen extends StatelessWidget {
+  Future<void> _updateClothesData(BuildContext context) async {
+    final docRef = FirebaseFirestore.instance
+        .collection('clothes')
+        .doc('biRhapgdIk6LdYEcoA6A');
 
-  Future<void> _updateHoodieData(BuildContext context) async {
+    // 10 dummy data for clothes
+    final clothesData = [
+      {
+        "brand": "CasualFit",
+        "color": "Red",
+        "material": "Cotton",
+        "name": "Casual T-shirt",
+        "price": 29.99,
+        "rating": 4.5,
+        "stock": 20,
+        "image": "assets/compressedimages/clothes/c1.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "Stylora",
+        "color": "Blue",
+        "material": "Polyester",
+        "name": "Chic Denim Jacket",
+        "price": 59.99,
+        "rating": 4.7,
+        "stock": 15,
+        "image": "assets/compressedimages/clothes/c2.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "VogueWear",
+        "color": "Black",
+        "material": "Wool",
+        "name": "Elegant Black Blazer",
+        "price": 89.99,
+        "rating": 4.8,
+        "stock": 10,
+        "image": "assets/compressedimages/clothes/c3.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "UrbanTrend",
+        "color": "Grey",
+        "material": "Blend",
+        "name": "Oversized Sweatshirt",
+        "price": 49.99,
+        "rating": 4.6,
+        "stock": 18,
+        "image": "assets/compressedimages/clothes/c4.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "ClassicWear",
+        "color": "Green",
+        "material": "Linen",
+        "name": "Casual Green Shirt",
+        "price": 39.99,
+        "rating": 4.4,
+        "stock": 12,
+        "image": "assets/compressedimages/clothes/c5.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "TrendGear",
+        "color": "Pink",
+        "material": "Cotton",
+        "name": "Trendy Pink Dress",
+        "price": 79.99,
+        "rating": 4.9,
+        "stock": 8,
+        "image": "assets/compressedimages/clothes/c6.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "EliteStyle",
+        "color": "White",
+        "material": "Silk",
+        "name": "Formal White Shirt",
+        "price": 99.99,
+        "rating": 4.8,
+        "stock": 5,
+        "image": "assets/compressedimages/clothes/c7.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "CasualWear",
+        "color": "Yellow",
+        "material": "Cotton",
+        "name": "Bright Yellow T-shirt",
+        "price": 34.99,
+        "rating": 4.3,
+        "stock": 20,
+        "image": "assets/compressedimages/clothes/c8.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "SmartFit",
+        "color": "Navy Blue",
+        "material": "Blended Wool",
+        "name": "Classic Navy Suit",
+        "price": 199.99,
+        "rating": 4.9,
+        "stock": 4,
+        "image": "assets/compressedimages/clothes/c9.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+      {
+        "brand": "GlamWear",
+        "color": "Purple",
+        "material": "Viscose",
+        "name": "Evening Purple Gown",
+        "price": 129.99,
+        "rating": 4.6,
+        "stock": 10,
+        "image": "assets/compressedimages/clothes/c10.jpeg",
+        "sizes": {"S": true, "M": true, "L": true, "XL": true},
+      },
+    ];
+
     try {
-      final DocumentReference documentRef = FirebaseFirestore.instance
-          .collection('hoodies')
-          .doc('0XT0FaUS8sdxQj7VYnIJ');
+      for (final cloth in clothesData) {
+        await docRef.set({
+          'items': FieldValue.arrayUnion([cloth])
+        }, SetOptions(merge: true));
+      }
 
-      // Update the items field with new hoodies data
-      await documentRef.update({"items": hoodies});
-
-      Fluttertoast.showToast(
-        msg: "Hoodies updated successfully!",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Clothes data updated successfully!')),
       );
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Failed to update Hoodies: $e",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update data: $e')),
       );
     }
   }
@@ -147,17 +142,17 @@ class HoodieUploaderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Update Hoodies Data'),
+        title: const Text('Update Clothes Data'),
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: () => _updateHoodieData(context),
+          onPressed: () => _updateClothesData(context),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             backgroundColor: Colors.blue,
           ),
           child: const Text(
-            'Update Hoodies',
+            'Update Clothes',
             style: TextStyle(fontSize: 18, color: Colors.white),
           ),
         ),

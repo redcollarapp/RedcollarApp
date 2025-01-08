@@ -1,182 +1,153 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'settings_screen.dart';
-import 'signin_Screen.dart';
 
-class ProfileControllerScreen extends StatelessWidget {
-  const ProfileControllerScreen({super.key});
-
-  User? getCurrentUser() {
-    return FirebaseAuth.instance.currentUser;
-  }
-
-  bool isAdmin(User? user) {
-    // Replace this logic with your actual admin validation, such as checking roles in Firebase
-    const adminEmail = 'redcollar@gmail.com';
-    return user?.email == adminEmail;
-  }
-
+class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final user = getCurrentUser();
-    final email = user?.email ?? 'Guest';
-    final photoURL = user?.photoURL;
-    final isUserAdmin = isAdmin(user);
+    // Get the current Firebase user
+    final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.white,
-      ),
+      backgroundColor: Colors.white,
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Profile Header
-          GestureDetector(
-            onTap: () {
-              if (photoURL != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FullScreenProfileImage(
-                      photoURL: photoURL,
-                    ),
-                  ),
-                );
-              }
-            },
-            child: Hero(
-              tag: 'profile-pic',
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-                color: Colors.grey[900],
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          photoURL != null ? NetworkImage(photoURL) : null,
-                      child: photoURL == null
-                          ? const Icon(Icons.person,
-                              size: 50, color: Colors.white)
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      email,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
+          // Header Section
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF8E6E53), Color(0xFFB89C89)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(36),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-
-          // Options
-          if (isUserAdmin)
-            ListTile(
-              leading: const Icon(Icons.dashboard, color: Colors.black),
-              title: const Text('Dashboard'),
-              subtitle: const Text('View admin dashboard and stats'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to the admin-only dashboard
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdminDashboardScreen(),
+            child: Column(
+              children: [
+                // Profile Avatar
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.white,
+                  child: Text(
+                    _getInitials(user?.displayName ?? 'User'),
+                    style: TextStyle(
+                      color: Colors.brown.shade700,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              },
-            ),
-          if (isUserAdmin) const Divider(),
-
-          ListTile(
-            leading: const Icon(Icons.settings, color: Colors.black),
-            title: const Text('Settings'),
-            subtitle: const Text('Adjust your preferences'),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SettingsScreen(),
                 ),
-              );
-            },
+                const SizedBox(height: 16),
+
+                // User Name
+                Text(
+                  user?.displayName ?? 'Jane A. Meldrum',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+
+                // User Email
+                const SizedBox(height: 8),
+                Text(
+                  user?.email ?? 'jane@test.com',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Logout'),
-            subtitle: const Text('Sign out from your account'),
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const SignInScreen()),
-                (route) => false,
-              );
-            },
+
+          const SizedBox(height: 24),
+
+          // Options List
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildOption(
+                  icon: Icons.person_outline,
+                  title: 'My Information',
+                  onTap: () {
+                    // Handle navigation
+                  },
+                ),
+                const Divider(),
+                _buildOption(
+                  icon: Icons.credit_card_outlined,
+                  title: 'Credit Card',
+                  onTap: () {
+                    // Handle navigation
+                  },
+                ),
+                const Divider(),
+                _buildOption(
+                  icon: Icons.history,
+                  title: 'Past Orders',
+                  onTap: () {
+                    // Handle navigation
+                  },
+                ),
+                const Divider(),
+                _buildOption(
+                  icon: Icons.location_on_outlined,
+                  title: 'Address Information',
+                  onTap: () {
+                    // Handle navigation
+                  },
+                ),
+                const Divider(),
+                _buildOption(
+                  icon: Icons.card_giftcard_outlined,
+                  title: 'Coupons',
+                  onTap: () {
+                    // Handle navigation
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-class FullScreenProfileImage extends StatelessWidget {
-  final String? photoURL;
-
-  const FullScreenProfileImage({super.key, required this.photoURL});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Center(
-          child: Hero(
-            tag: 'profile-pic',
-            child: CircleAvatar(
-              radius: 150,
-              backgroundImage:
-                  photoURL != null ? NetworkImage(photoURL!) : null,
-              child: photoURL == null
-                  ? const Icon(Icons.person, size: 150, color: Colors.white)
-                  : null,
-            ),
-          ),
-        ),
-      ),
-    );
+  /// Get initials from the user's display name
+  String _getInitials(String name) {
+    final nameParts = name.split(' ');
+    if (nameParts.length > 1) {
+      return nameParts[0][0] + nameParts[1][0];
+    }
+    return nameParts[0][0];
   }
-}
 
-class AdminDashboardScreen extends StatelessWidget {
-  const AdminDashboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Dashboard',
-            style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+  /// Build individual option items
+  Widget _buildOption({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: Colors.brown,
+        size: 28,
       ),
-      body: const Center(
-        child: Text(
-          'Admin Dashboard',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
         ),
       ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: onTap,
     );
   }
 }

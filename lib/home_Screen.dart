@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:carousel_slider/carousel_slider.dart'; // <-- NEW IMPORT
-import 'profile_Page.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'clothes_Screen.dart';
-import 'admin_panel_screen.dart';
-import 'cart_screen.dart';
-import 'favourties.dart';
+import 'profile_Page.dart';
 import 'search.dart';
-import 'accounts.dart';
+import 'favorites_Page.dart';
+
+import 'cart_Screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final bool isAdmin;
+  final String username;
 
-  const HomeScreen({super.key, required this.isAdmin});
+  const HomeScreen({Key? key, required this.username, required bool isAdmin})
+      : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,409 +20,407 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  // Screens for BottomNavigationBar
-  late final List<Widget> _screens;
+  final List<Widget> _pages = [];
 
   @override
   void initState() {
     super.initState();
-
-    // Dynamically include the Admin Panel if the user is an admin
-    _screens = [
-      const HomeContentScreen(),
-      ProductListingPage(),
-      const FavoritesPage(favorites: []),
-      if (widget.isAdmin) const AdminPanelScreen(),
-      const AccountPage(),
-    ];
+    _pages.addAll([
+      _HomeContent(username: widget.username), // Home Content
+      const SearchScreen(), // Search Screen
+      FavoritesPage(), // Favorites Page
+      const CartScreen(cart: []), // Cart Screen
+      ProfileScreen(), // Profile Screen
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex], // Display the selected page
+      backgroundColor: Colors.white,
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.red,
-        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Update current page
+            _currentIndex = index;
           });
         },
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
-          ),
-          if (widget.isAdmin)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.admin_panel_settings),
-              label: 'Admin',
-            ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'Account',
-          ),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.brown,
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.favorite), label: 'Favorites'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart), label: 'Cart'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 }
 
-class HomeContentScreen extends StatelessWidget {
-  const HomeContentScreen({super.key});
+class _HomeContent extends StatelessWidget {
+  final String username;
+
+  const _HomeContent({Key? key, required this.username}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final userName = FirebaseAuth.instance.currentUser?.displayName ?? 'Guest';
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.person, color: Colors.black),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProfileControllerScreen(),
-              ),
-            );
-          },
-        ),
-        title: const Text(
-          'CULTURES',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart, color: Colors.black),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CartScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome Message
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Welcome, $userName!',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome Section
+          Text(
+            'Hi $username,',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Get popular fashion from everywhere',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 16),
 
-            // Carousel Slider
-            _buildCarousel(),
+          // Search Bar with Voice Button
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              CircleAvatar(
+                backgroundColor: Colors.grey[200],
+                child: IconButton(
+                  icon: const Icon(Icons.mic, color: Colors.black),
+                  onPressed: () {
+                    // Add voice search logic
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+          // Carousel Section
+          _buildCarousel(),
 
-            // Category Tabs
-            _buildCategoryTabs(),
-            const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-            // Product Grid
-            _buildProductGrid(context),
-          ],
-        ),
+          // New Arrival Section
+          _buildNewArrivals(),
+
+          const SizedBox(height: 16),
+
+          // Categories Section
+          const Text(
+            'Categories',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Product Grid Section
+          _buildProductGrid(context),
+        ],
       ),
     );
   }
 
-  // Build Carousel
   Widget _buildCarousel() {
     final List<Map<String, String>> carouselItems = [
       {
-        'image': 'assets/t-shop.jpeg',
-        'title': 'Clothes Collection',
-        'price': '₹200'
+        'image': 'assets/compressedimages/cclothes/t6.jpeg',
+        'title': 'Upto 40% Off\nJackets Collections',
       },
-      {'image': 'assets/t-shop.jpeg', 'title': 'Winter Wear', 'price': '\$350'},
       {
-        'image': 'assets/t-shop.jpeg',
-        'title': 'Exclusive Hoodies',
-        'price': '₹150'
+        'image': 'assets/overcost/o1-min.jpeg',
+        'title': 'Winter Wear',
       },
-      {'image': 'assets/t-shop.jpeg', 'title': 'Trendy Shoes', 'price': '₹100'},
-      {'image': 'assets/t-shop.jpeg', 'title': 'Accessories', 'price': '₹50'},
+      {
+        'image': 'assets/hoodie-shop.jpeg',
+        'title': 'Exclusive Hoodies',
+      },
     ];
 
-    int currentIndex = 0;
-
-    return StatefulBuilder(
-      builder: (BuildContext context, StateSetter setState) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Carousel
-            CarouselSlider.builder(
-              itemCount: carouselItems.length,
-              itemBuilder: (context, index, realIndex) {
-                final item = carouselItems[index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
+    return CarouselSlider.builder(
+      itemCount: carouselItems.length,
+      itemBuilder: (context, index, realIndex) {
+        final item = carouselItems[index];
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  item['image']!,
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  bottom: 20,
+                  left: 20,
+                  child: Text(
+                    item['title']!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Background Image
-                        Image.asset(
-                          item['image']!,
-                          fit: BoxFit.cover,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      options: CarouselOptions(
+        height: 200,
+        autoPlay: true,
+        enlargeCenterPage: true,
+        viewportFraction: 0.85,
+        aspectRatio: 16 / 9,
+      ),
+    );
+  }
+
+  Widget _buildNewArrivals() {
+    final newArrivals = [
+      {
+        'name': 'Wilcox',
+        'type': 'Dresses',
+        'price': '\$85.88',
+        'image': 'assets/overcost/o1-min.jpeg',
+      },
+      {
+        'name': 'Karen Willis',
+        'type': 'Dresses',
+        'price': '\$142',
+        'image': 'assets/overcost/o1-min.jpeg',
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'New Arrival',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 250,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: newArrivals.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final item = newArrivals[index];
+              return SizedBox(
+                width: 180,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(16)),
+                          child: Image.asset(
+                            item['image']!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
                         ),
-                        // Overlay with details
-                        Positioned(
-                          bottom: 20,
-                          left: 20,
-                          right: 20,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: Colors.black.withOpacity(0.6),
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Product Details
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item['title']!,
+                                  item['name']!,
                                   style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  item['price']!,
-                                  style: const TextStyle(
-                                    color: Colors.orange,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                Text(
+                                  item['type']!,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                                const SizedBox(
+                                    height:
+                                        4), // Spacing between type and price
+                                Text(
+                                  '\$${item['price']}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
                               ],
                             ),
-                          ),
+                            // Shopping Bag Icon
+                            IconButton(
+                              onPressed: () {
+                                // Add to cart logic
+                              },
+                              icon: const Icon(
+                                Icons.shopping_bag_outlined,
+                                color: Colors.brown,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              },
-              options: CarouselOptions(
-                height: 300.0,
-                autoPlay: true,
-                autoPlayInterval: const Duration(seconds: 3),
-                enlargeCenterPage: true,
-                viewportFraction: 0.85,
-                aspectRatio: 16 / 9,
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    currentIndex = index;
-                  });
-                },
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProductGrid(BuildContext context) {
+    final sampleProducts = [
+      {
+        'name': 'T-Shirts',
+        'docId': 'biRhapgdIk6LdYEcoA6A',
+        'collection': 'clothes',
+        'image': 'assets/compressedimages/cclothes/t6.jpeg',
+      },
+      {
+        'name': 'Hoodies',
+        'docId': '0XT0FaUS8sdxQj7VYnIJ',
+        'collection': 'hoodies',
+        'image': 'assets/compressedimages/choodies/h1.jpeg',
+      },
+      {
+        'name': 'Jeans',
+        'docId': '7iUIOTG60q64EmQqAmdV',
+        'collection': 'jeans',
+        'image': 'assets/compressedimages/cjeans/j1.jpeg',
+      },
+      {
+        'name': 'Shoes',
+        'docId': 'Op3RND16TFucJc9YNy7S',
+        'collection': 'shoes',
+        'image': 'assets/compressedimages/cshoes/s1.jpeg',
+      },
+      {
+        'name': 'Accessories',
+        'docId': 't4m2VdyNicHLvHcEb4KV',
+        'collection': 'accessories',
+        'image': 'assets/accesores/a1-min.jpeg',
+      },
+      {
+        'name': 'Overcoat',
+        'docId': '3rvTIeYM6ACCE8HEOrlt',
+        'collection': 'overcoat',
+        'image': 'assets/overcost/02-min.jpeg',
+      },
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 3 / 4,
+      ),
+      itemCount: sampleProducts.length,
+      itemBuilder: (context, index) {
+        final product = sampleProducts[index];
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ClothesSectionPage(
+                  category: product['name']!,
+                  documentId: product['docId']!,
+                  collectionName: product['collection']!,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              image: DecorationImage(
+                image: AssetImage(product['image']!),
+                fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 16),
-            // Dots Indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: carouselItems.asMap().entries.map((entry) {
-                return GestureDetector(
-                  onTap: () => setState(() {
-                    currentIndex = entry.key;
-                  }),
-                  child: Container(
-                    width: 10.0,
-                    height: 10.0,
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 4.0),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentIndex == entry.key
-                          ? Colors.red
-                          : Colors.grey[400],
-                    ),
-                  ),
-                );
-              }).toList(),
+            alignment: Alignment.center,
+            child: Container(
+              color: Colors.black.withOpacity(0.4),
+              child: Text(
+                product['name']!,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ],
+          ),
         );
       },
     );
   }
-}
-
-Widget _buildCategoryTabs() {
-  final categories = ['POPULAR', 'NEW', 'CATALOG', 'VIRTUAL STYLING'];
-  return SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Row(
-      children: categories
-          .map(
-            (category) => Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Chip(
-                label: Text(
-                  category,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                backgroundColor: Colors.red.withOpacity(0.2),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-              ),
-            ),
-          )
-          .toList(),
-    ),
-  );
-}
-
-Widget _buildProductGrid(BuildContext context) {
-  final sampleProducts = [
-    {
-      'name': 'T-Shirt',
-      'docId': 'biRhapgdIk6LdYEcoA6A',
-      'collection': 'clothes',
-      'image': 'assets/t-shop.jpeg',
-    },
-    {
-      'name': 'Hoodie',
-      'docId': '0XT0FaUS8sdxQj7VYnIJ',
-      'collection': 'hoodies',
-      'image': 'assets/hoodie-shop.jpeg',
-    },
-    {
-      'name': 'Jeans',
-      'docId': '7iUIOTG60q64EmQqAmdV',
-      'collection': 'jeans',
-      'image': 'assets/jean-shop.jpeg',
-    },
-    {
-      'name': 'Shoes',
-      'docId': 'Op3RND16TFucJc9YNy7S',
-      'collection': 'shoes',
-      'image': 'assets/shoe-shop.jpeg',
-    },
-  ];
-
-  return GridView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 0.75,
-    ),
-    padding: const EdgeInsets.all(16),
-    itemCount: sampleProducts.length,
-    itemBuilder: (context, index) {
-      final product = sampleProducts[index];
-      return GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ClothesSectionPage(
-                category: product['name'].toString(),
-                documentId: product['docId'].toString(),
-                collectionName: product['collection'].toString(),
-              ),
-            ),
-          );
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[300]!),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-            color: Colors.white,
-          ),
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  product['image'].toString(),
-                  height: 100,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                product['name'].toString(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Explore Now',
-                style: TextStyle(color: Colors.red),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
 }
